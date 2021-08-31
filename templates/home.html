@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block content %}
+	This tool takes the CSV reports from RedSky and verifies MyE911 Users have devices mapped, and will also identify devices that can be mapped.
+	<br>
+	<br>
+	<form method="POST" enctype="multipart/form-data">
+		{{ form.hidden_tag() }}
+		<div class="col-sm-12 form-group">
+			<!-- <label>Users</label>
+			{{ form.users_csv }} -->
+			{{ wtf.form_field(form.users_csv, class='form-control-file', placeholder='Users') }}
+			<!-- {% for error in form.users_csv.errors %}
+				<span style="color: red;">{{ error }}</span>
+			{% endfor %} -->
+		</div>
+		<div class="col-sm-12 form-group">
+			{{ wtf.form_field(form.maps_csv, class='form-control-file', placeholder='Device Mappings') }}
+		</div>
+		<div class="col-sm-12 form-group">
+			{{ wtf.form_field(form.devices_csv, class='form-control-file', placeholder='All Devices') }}
+		</div>
+		<div class="col-sm-12 form-group">
+			<!-- {{ form.submit }} -->
+			<button type="submit" class="btn btn-primary">Upload</button>
+		</div>
+	</form>
+
+	{% if file_url %}
+		<br>
+		Files uploaded successfully:<br>
+		{% for file in file_url %}
+			{{ file }}<br>
+		{% endfor %}
+	{% endif %}
+
+	{% if results %}
+		<br>
+		<b>Results:<br>
+		Total MyE911 Users: {{ results[0] }}<br>
+		Users with a device mapped: {{ results[1] }}<br>
+		Users without a device mapped: {{ results[2] }}<br>
+		Devices matched to users without a device: {{ results[3] }}<br>
+		Report saved as: <a href="_uploads/csvs/{{ results[4] }}">{{ results[4] }}</a><br></b>
+	{% endif %}
+{% endblock content %}

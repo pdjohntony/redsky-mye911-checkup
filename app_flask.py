@@ -1,6 +1,6 @@
 import os
 from flask import Flask, escape, request, render_template, url_for, flash, redirect
-from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_class
+from flask_uploads import UploadSet, configure_uploads, IMAGES
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 # from werkzeug.utils import secure_filename
@@ -26,11 +26,11 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bacon'
 app.config['UPLOADED_CSVS_DEST'] = os.path.join(basedir, 'uploads') # you'll need to create a folder named uploads
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 # sets maximum file size to 5MB
 Bootstrap(app)
 
 csv_set = UploadSet('csvs')
 configure_uploads(app, csv_set)
-patch_request_class(app)  # set maximum file size, default is 16MB
 
 class UploadForm(FlaskForm):
 	users_csv = FileField('Users', validators=[FileRequired('File was empty!'), FileAllowed(['csv'], 'CSV only!')])

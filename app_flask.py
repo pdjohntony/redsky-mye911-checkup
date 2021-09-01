@@ -10,7 +10,7 @@ import webbrowser
 from threading import Timer
 
 import pandas as pd
-import numpy as np
+# import numpy as np
 import datetime
 
 '''

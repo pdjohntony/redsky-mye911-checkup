@@ -1,9 +1,22 @@
 {% extends "layout.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
-	This tool takes the CSV reports from RedSky and verifies MyE911 Users have devices mapped, and will also identify devices that can be mapped.
+	<p>
+		This tool takes CSV reports from RedSky and verifies MyE911 Users have a device mapped. If a user has no device mapped it will try to match devices to users and create a MyE911 Device Mapping CSV import file.
+	</p>
 	<br>
-	<br>
+	<h5>Step 1 - Get RedSky Reports</h5>
+	<p>
+		In RedSky go to Administration > Reports. Select the reports listed below, click Run Now, then wait (patiently) for the reports to download automatically.
+		<ul>
+			<li>Users</li>
+			<li>MyE911 Device Mappings</li>
+			<li>Devices</li>
+		</ul>
+		<small><i>I schedule these reports to run weekly since they can take as much as 30 minutes to complete in large environments.</i></small>
+	</p>
+	<h5>Step 2 - Upload Reports Here</h5>
+	{% if not file_url %}
 	<form method="POST" enctype="multipart/form-data">
 		{{ form.hidden_tag() }}
 		<div class="col-sm-12 form-group">
@@ -15,19 +28,22 @@
 			{% endfor %} -->
 		</div>
 		<div class="col-sm-12 form-group">
-			{{ wtf.form_field(form.maps_csv, class='form-control-file', placeholder='Device Mappings') }}
+			{{ wtf.form_field(form.maps_csv, class='form-control-file', placeholder='MyE911 Device Mappings') }}
 		</div>
 		<div class="col-sm-12 form-group">
-			{{ wtf.form_field(form.devices_csv, class='form-control-file', placeholder='All Devices') }}
+			{{ wtf.form_field(form.devices_csv, class='form-control-file', placeholder='Devices') }}
+		</div>
+		<div class="col-sm-12 form-group">
+			{{ wtf.form_field(form.pbx_name, class='form-control', placeholder='Call Server / PBX Name') }}
 		</div>
 		<div class="col-sm-12 form-group">
 			<!-- {{ form.submit }} -->
 			<button type="submit" class="btn btn-primary">Upload</button>
 		</div>
 	</form>
+	{% endif %}
 
 	{% if file_url %}
-		<br>
 		Files uploaded successfully:<br>
 		{% for file in file_url %}
 			{{ file }}<br>
@@ -36,11 +52,23 @@
 
 	{% if results %}
 		<br>
-		<b>Results:<br>
-		Total MyE911 Users: {{ results[0] }}<br>
-		Users with a device mapped: {{ results[1] }}<br>
-		Users without a device mapped: {{ results[2] }}<br>
-		Devices matched to users without a device: {{ results[3] }}<br>
-		Report saved as: <a href="_uploads/csvs/{{ results[4] }}">{{ results[4] }}</a><br></b>
+		<h5>Step 3 - Checkup Results</h5>
+		<p>
+		<table>
+			<tr><td>Total MyE911 Users:</td><td style="font-weight: bold;">{{ results[0] }}</td></tr>
+			<tr><td>Users with a device mapped:</td><td style="color:green; font-weight: bold;">{{ results[1] }}</td></tr>
+			<tr><td>Users without a device mapped:</td><td style="color:red; font-weight: bold;">{{ results[2] }}</td></tr>
+			<tr><td>Devices matched to users without a device:</td><td style="color:yellow; font-weight: bold;">{{ results[3] }}</td></tr>
+		</table>
+		<br>
+		Report saved as: <a href="uploads/{{ results[4] }}">{{ results[4] }}</a>
+		</p>
+
+		<h5>Step 4 - Import New Device Mappings</h5>
+		<p>
+			In RedSky go to Administration > MyE911 Device Mappings. At the top right click "Import Device Mappings" and upload the bulk import file below.
+			<br><br>
+			Bulk Import saved as: <a href="uploads/{{ results[5] }}">{{ results[5] }}</a>
+		</p>
 	{% endif %}
 {% endblock content %}

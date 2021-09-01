@@ -6,6 +6,8 @@ from flask_wtf.file import FileField, FileRequired, FileAllowed
 # from werkzeug.utils import secure_filename
 from wtforms import SubmitField, StringField, validators
 from flask_bootstrap import Bootstrap
+import webbrowser
+from threading import Timer
 
 import pandas as pd
 import numpy as np
@@ -22,13 +24,14 @@ You can use Flask-Reuploaded as a drop-in replacement to Flask-Uploads, which fi
 '''
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-upload_dest = os.path.join(basedir, 'uploads')
+upload_dest = os.path.join(os.getcwd(), 'uploads')
+if not os.path.exists(upload_dest): os.mkdir(upload_dest)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bacon'
 app.config['UPLOADED_CSVS_DEST'] = upload_dest # you'll need to create a folder named uploads
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 # sets maximum file size to 5MB
-Bootstrap(app)
+bootstrap = Bootstrap(app)
 
 csv_set = UploadSet('csvs')
 configure_uploads(app, csv_set)
@@ -37,7 +40,7 @@ class UploadForm(FlaskForm):
 	users_csv = FileField('Users', validators=[FileRequired('File was empty!'), FileAllowed(['csv'], 'CSV only!')])
 	maps_csv = FileField('MyE911 Device Mappings', validators=[FileRequired('File was empty!'), FileAllowed(['csv'], 'CSV only!')])
 	devices_csv = FileField('Devices', validators=[FileRequired('File was empty!'), FileAllowed(['csv'], 'CSV only!')])
-	pbx_name = StringField('PBX Name', [validators.required()])
+	pbx_name = StringField('PBX Name', [validators.DataRequired()])
 	submit = SubmitField('Upload')
 
 @app.route('/', methods=['GET', 'POST'])
@@ -197,5 +200,9 @@ def generate_report(csv_urls):
 
 	return [stat_users_total, stat_users_with_device, stat_users_without_device, stat_devices_available, fname_output, fname_bulk_output]
 
+def open_browser():
+	webbrowser.open_new('http://localhost:5001/')
+
 if __name__ == "__main__":
-	app.run(debug=True, host='0.0.0.0', port=5001)
+	Timer(1, open_browser).start();
+	app.run(debug=False, host='0.0.0.0', port=5001)

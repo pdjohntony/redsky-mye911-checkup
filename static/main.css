@@ -78,3 +78,13 @@ body {
  .account-heading {
 	font-size: 2.5rem;
  }
+
+ .col-md-8 {
+	flex: 0 0 100%;
+	max-width: 100%;
+}
+
+table {
+	border-collapse: separate;
+	border-spacing: 25px 2px;
+}
